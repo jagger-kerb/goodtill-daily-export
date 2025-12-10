@@ -1,10 +1,12 @@
 name: Goodtill daily export
 
+permissions:
+  contents: write
+
 on:
-  # Run once per day at 05:00 UTC (change this if you want another time)
+  # Run once per day at 05:00 UTC
   schedule:
     - cron: "0 5 * * *"
-
   # Allow manual runs
   workflow_dispatch:
 
@@ -33,11 +35,9 @@ jobs:
         run: |
           python fetch_daily_sails_git.py
 
-      # OPTIONAL: commit the generated CSV files back into the repo
-      # (You may remove this block if you prefer to skip storing CSVs in GitHub)
       - name: Commit and push CSVs if changed
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
