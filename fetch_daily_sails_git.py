@@ -11,11 +11,36 @@ import argparse
 # -------------------------
 
 # Tokens now come from environment variables
-FOOD_TOKEN = os.getenv("FOOD_TOKEN")
-BAR_TOKEN = os.getenv("BAR_TOKEN")
 
-if not FOOD_TOKEN or not BAR_TOKEN:
-    raise RuntimeError("FOOD_TOKEN and/or BAR_TOKEN environment variables are not set.")
+
+
+def generate_token(subdomain,usr,pw):
+    response = requests.post(
+        'https://api.thegoodtill.com/api/login',
+        data = {
+            'subdomain': subdomain,
+            'username': usr,
+            'password': pw
+        }
+    )
+    response.raise_for_status()
+    data = response.json()
+
+    token = data["token"]
+
+    if not token:
+        raise RuntimeError(f'Failed to login to Goodtill API, response: {data}')
+    return token
+
+
+# Credentials come from environment variables (set in GitHub Actions)
+FOOD_SUBDOMAIN = os.environ["FOOD_SUBDOMAIN"]
+FOOD_USERNAME  = os.environ["FOOD_USERNAME"]
+FOOD_PASSWORD  = os.environ["FOOD_PASSWORD"]
+
+BAR_SUBDOMAIN = os.environ["BAR_SUBDOMAIN"]
+BAR_USERNAME  = os.environ["BAR_USERNAME"]
+BAR_PASSWORD  = os.environ["BAR_PASSWORD"]
 
 # Base dir = repo root in GitHub Actions (current working dir)
 BASE_DIR = Path(__file__).resolve().parent
@@ -203,6 +228,11 @@ def main():
         target_date = date.today() - timedelta(days=1)
 
     start_str, end_str, yday = get_range_for_date(target_date)
+
+    # Get Fresh Tokens
+
+    FOOD_TOKEN = generate_token(FOOD_SUBDOMAIN, FOOD_USERNAME, FOOD_PASSWORD)
+    BAR_TOKEN = generate_token(BAR_SUBDOMAIN, BAR_USERNAME, BAR_PASSWORD)
 
     # --- Fetch FOOD data ---
     food_json = fetch_all_sales_for_token(FOOD_TOKEN, start_str, end_str)
