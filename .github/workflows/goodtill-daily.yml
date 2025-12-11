@@ -30,11 +30,14 @@ jobs:
 
       - name: Run daily Goodtill export
         env:
-          FOOD_TOKEN: ${{ secrets.FOOD_TOKEN }}
-          BAR_TOKEN:  ${{ secrets.BAR_TOKEN }}
+          FOOD_SUBDOMAIN: ${{ secrets.FOOD_SUBDOMAIN }}
+          FOOD_USERNAME:  ${{ secrets.FOOD_USERNAME }}
+          FOOD_PASSWORD:  ${{ secrets.FOOD_PASSWORD }}
+          BAR_SUBDOMAIN:  ${{ secrets.BAR_SUBDOMAIN }}
+          BAR_USERNAME:   ${{ secrets.BAR_USERNAME }}
+          BAR_PASSWORD:   ${{ secrets.BAR_PASSWORD }}
         run: |
           python fetch_daily_sails_git.py
-
       - name: Commit and push CSVs if changed
         env:
           GITHUB_TOKEN: ${{ github.token }}
